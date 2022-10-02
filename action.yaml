@@ -1,0 +1,48 @@
+name: 'ZAP Automation Framework'
+description: 'Scan a web application with ZAP Automation Framework'
+branding:
+  icon: 'shield'
+  color: 'green'
+inputs:
+  config-dir:
+    required: true
+    description: 'The directory which contains the automation framework configuration and relevant scripts'
+  reports-dir:
+    required: false
+    description: 'The directory where artifacts (e.g.) reports will be stored after their production'
+    default: 'reports'
+  autorun-file:
+    required: true
+    description: 'The actual configuration of the automation framework'
+  docker-image:
+    required: false
+    description: 'The docker image to be used'
+    default: 'owasp/zap2docker-stable'
+  create-issue:
+    required: false
+    description: 'Creates a Github issue when the Automation Framework detects issues with the webapp'
+    default: false
+  summary-file:
+    required: false
+    description: 'The name of the summary file, relative to the artifacts-dir directory'
+    default: 'summary.json'
+  json-file:
+    required: false
+    description: 'The name of the traditional-json report file, relative to the artifacts-dir directory'
+    default: 'report.json'
+  issue-title:
+    description: 'The title of the issue to be created'
+    required: false
+    default: 'ZAP Scan Result Findings'
+  token:
+    description: 'GitHub Token to create issues in the repository'
+    required: false
+    default: ${{ github.token }}
+  create-annotations:
+    description: 'Creates annotations'
+    required: false
+    default: false
+
+runs:
+  using: 'node16'
+  main: 'index.js'
