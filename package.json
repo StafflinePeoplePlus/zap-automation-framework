@@ -1,9 +1,11 @@
 {
-  "name": "zap-framework",
+  "name": "zap-automation-framework",
   "version": "0.1.0",
   "description": "Runs OWASP ZAProxy Automation Framework from GitHub Actions",
   "main": "lib/main.js",
   "scripts": {
+    "lint-report": "eslint ./src",
+    "lint": "eslint ./src --fix",
     "build": "tsc",
     "package": "ncc build --source-map --license licenses.txt"
   },
