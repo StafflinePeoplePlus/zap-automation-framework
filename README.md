@@ -1,49 +1,49 @@
 # :zap: GitHub Action to run ZAP Automation Framework
 
-Runs [OWASP ZAProxy](https://www.zaproxy.org/) [Automation Framework](https://www.zaproxy.org/docs/desktop/addons/automation-framework/) 
-from GitHub Actions,  to scan a web application and get analysis results both as an issue (optional) and/or as an action artifact.
+An action that runs [OWASP ZAProxy](https://www.zaproxy.org/)'s
+[Automation Framework](https://www.zaproxy.org/docs/desktop/addons/automation-framework/), to scan a web application 
+and get analysis results both as an issue and/or as an action artifact.
 
 > :bangbang: WARNING! This action is still under development and hasn't been tested thoroughly. Use it at your own risk!!!
 
+## :book: Contents
+- [Mandatory Warnings](#bangbang-mandatory-warnings)
+- [Introduction](#nerd_face-introduction)
+- [Advanced Configuration](#detective-advanced-configuration)
+   - [Reports and Artifacts](#memo-reports-and-artifacts)
+   - [Annotations](#octocat-annotations)
+   - [Reporting in Issues](#octocat-reporting-in-issues)
+- [Usage](#memo-usage)
+- [License](#scroll-license)
+- [Contributions](#1-contributions)
+
+
 ## :bangbang: MANDATORY WARNINGS
 
-> This action uses [OWASP ZAProxy](https://www.zaproxy.org/) to perform **ACTUAL** attacks on the target website!
-> 
-> You should only scan targets **you have permission to test**!
-> 
-> You should also check with your hosting provider and any other services the target site relies on, prior to executing
-> a test on your target.
-> 
-> In case you have configured ZAP to post forms, please be prepared to find a ton of garbage data in your database(s).
-> 
-> Never, **ever**, scan your production targets, as the process might impact the actual service. 
-> 
-> Never, **ever**, **EVER**, store secrets in your repository (such as passwords, access keys, etc.). Instead 
-> modify your configuration in such a way, these secrets are obtained from a secure source (e.g. Repository Secrets). 
-
-## :book: Contents
- - [Mandatory Warnings](#bangbang-mandatory-warnings)
- - [Introduction](#nerd_face-introduction)
- - [Advanced Configuration](#detective-advanced-configuration)
-   - [Reports](#memo-reports)
-   - [Creating Issues](#octocat-creating-issues)
- - [Usage](#memo-usage)
- - [License](#scroll-license)
- - [Contributions](#1-contributions)
+ - This action uses [OWASP ZAProxy](https://www.zaproxy.org/) to perform **ACTUAL** attacks on the target website!
+ - You should only scan targets **you have permission to test**!
+ - You should also check with your hosting provider and any other services the target site relies on, prior to executing a test on your target. 
+ - In case you have configured ZAP to post forms, please be prepared to find a ton of garbage data in your database(s).
+ - Never, **ever**, scan your production targets, as the process might impact the actual service.
+ - Never, **ever**, **EVER**, store secrets in your repository (such as passwords, access keys, etc.). Instead modify your configuration in such a way, these secrets are obtained from a secure source (e.g. Repository Secrets). 
 
 ## :nerd_face: Introduction
 
-While both the [Baseline Action](https://github.com/zaproxy/action-baseline) and the [Full Scan Action](https://github.com/zaproxy/action-full-scan) do 
-their job magnificently, when there is a need for extra customization and/or automation of security testing, they are not enough.
+While both the [Baseline Action](https://github.com/zaproxy/action-baseline) and
+the [Full Scan Action](https://github.com/zaproxy/action-full-scan) do their job magnificently,
+when there is a need for extra customization and/or automation of security testing, they are not enough.
 
-This action tries to simplify the usage of ZAP's Automation Framework, by automating certain steps and 
-at the same time, it can act as a basis for creating your custom workflow that will leverage the Automation
-Framework's features.
+This action simplifies the usage of ZAP's Automation Framework, by automating certain steps of the process
+and, at the same time, it can act a basis for creating your custom workflow, which will leverage the
+entirety of Automation Framework's features.
 
-> :bangbang: Properly configuring the Automation Framework can be a PITA. Please consult the [Automation Framework Configuration Guide](doc/AutomationFramework.md)
+> :bangbang: Properly configuring the Automation Framework can be a PITA. 
+> Please consult the [Automation Framework Configuration Guide](doc/AutomationFramework.md)
 on how you will properly configure the Automation Framework so that it can be used with this action.
 
-In its simplest form the action can be set up like this:
+### Basic Setup
+
+In its simplest form, the action can be set up like this:
 ```yaml
 - name: Run ZAP Automation Framework
   uses: MisterIcy/zap-automation-framework
@@ -55,14 +55,15 @@ In its simplest form the action can be set up like this:
 This will pull the `owasp/zap2docker-stable` mount the `zap-config` directory to `/zap/zap-config` inside a container and
 then execute `/zap/zap.sh -cmd -autorun /zap/zap-config/autorun.yaml`. 
 
-As simple as that.
+> As simple as that.
 
 ## :detective: Advanced Configuration
 
-### :memo: Reports
+### :memo: Reports And Artifacts
 
-Assuming that you have an automation framework configuration that produces various reports regarding your scan, you can
-tell the action to create zip out of them and upload it as an artifact in the action.
+Assuming that you have an automation framework configuration that produces various
+reports regarding your scan, you can tell the action to create a zip file out of 
+them and upload it as an artifact in the action:
 
 ```yaml
   - type: report
@@ -86,9 +87,11 @@ tell the action to create zip out of them and upload it as an artifact in the ac
     sections:
 ```
 
-Since this configuration doesn't save the reports in the default `reports-dir`,
-you have to specify the directory where the reports are actually saved, so that the action can find
-them and produce a zip for you.
+Since this configuration saves the reports in the default `reports-dir`,
+you don't have to specify the directory where the reports will be generated.
+
+In case you wanted to generate the reports in a directory other than the default,
+you would have to specify it by using the `reports-dir` input:
 
 ```yaml
 - name: Run ZAP Automation Framework
@@ -99,9 +102,40 @@ them and produce a zip for you.
     reports-dir: 'reports'
 ```
 
-### :octocat: Creating Issues
+### :octocat: Annotations
 
-In order to create an issue, your configuration will **at least** need to define an `outputSummary` job:
+Since version 0.2.0, the action is able to create annotations in the workflow.
+In order for this to work, your configuration will **at least** need to define
+an `outputSummary` job:
+
+```yaml
+- parameters:
+    format: "long"
+    summaryFile: "/zap/report/zap-summary.json"
+  rules: []
+  name: "outputSummary"
+  type: "outputSummary"
+```
+
+Then your setup will look like this:
+
+
+```yaml
+- name: Run ZAP Automation Framework
+  uses: MisterIcy/zap-automation-framework
+  with:
+    config-dir: 'zap-config'
+    autorun-file: 'autorun.yaml'
+    reports-dir: 'reports'
+    summary-json: 'zap-summary.json'
+    create-annotations: true
+```
+
+
+### :octocat: Reporting in issues
+
+As with Annotations, in order to create and/or update an issue,
+your configuration will **at least** need to define an `outputSummary` job:
 
 ```yaml
 - parameters:
@@ -136,8 +170,7 @@ Then you'll have to configure the action's step in order to use the summary file
 ```
 
 In case the action detects warnings or failures, it will open a new issue in your repository, stating
-that the analysis of the scan discovered the aforementioned warnings and/or failures and will contain a link
-to the action which contains the artifacts (report), in order for you to be able to have a deeper look in it.
+that the analysis of the scan discovered the aforementioned warnings and/or failures.
 
 Now, if you need something more detailed, you'll have to supply a report of the `traditional-json` type:
 
