@@ -7,5 +7,5 @@ export interface WriterInterface
      *
      * @param {ReportInterface} report The report to be written
      */
-    write(report: ReportInterface): boolean;
+    write(report: ReportInterface): Promise<boolean>;
 }

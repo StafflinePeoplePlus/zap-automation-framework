@@ -9,7 +9,7 @@ import {SiteInterface} from '../reports/SiteInterface'
 
 export class AnnotationWriter implements WriterInterface {
 
-    write(report: ReportInterface): boolean {
+    async write(report: ReportInterface): Promise<boolean> {
         let result = false
 
         if (report.summary) {
@@ -22,7 +22,7 @@ export class AnnotationWriter implements WriterInterface {
             result = true
         }
 
-        return result
+        return new Promise<boolean>(resolve => result)
     }
 
     private writeSummary(summary: SummaryInterface): void {
