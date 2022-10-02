@@ -209,6 +209,11 @@ Configure your action accordingly:
 - The GitHub Token used to create issues in the repository
 - Defaults to `${{ github.token }}`
 
+#### `create-annotations` (Optional)
+- Set to `true` in order for the action to produce annotations when the Scanner has determined that the application has issues
+- Accepts a `boolean`.
+- You must either specify a `summary-file` or a `json-file` for the annotations to be written.
+
 ## :scroll: License
 
 - This project is licensed under the [MIT License](LICENSE "License for MisterIcy/zap-automation-framework")
