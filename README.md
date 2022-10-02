@@ -1,9 +1,28 @@
 # :zap: GitHub Action to run ZAP Automation Framework
 
 Runs [OWASP ZAProxy](https://www.zaproxy.org/) [Automation Framework](https://www.zaproxy.org/docs/desktop/addons/automation-framework/) 
-from GitHub Actions,  to scan a web application and get analysis results both as an isue (optional) and/or as an action artifact.
+from GitHub Actions,  to scan a web application and get analysis results both as an issue (optional) and/or as an action artifact.
+
+> :bangbang: WARNING! This action is still under development and hasn't been tested thoroughly. Use it at your own risk!!!
+
+## :bangbang: MANDATORY WARNINGS
+
+> This action uses [OWASP ZAProxy](https://www.zaproxy.org/) to perform **ACTUAL** attacks on the target website!
+> 
+> You should only scan targets **you have permission to test**!
+> 
+> You should also check with your hosting provider and any other services the target site relies on, prior to executing
+> a test on your target.
+> 
+> In case you have configured ZAP to post forms, please be prepared to find a ton of garbage data in your database(s).
+> 
+> Never, **ever**, scan your production targets, as the process might impact the actual service. 
+> 
+> Never, **ever**, **EVER**, store secrets in your repository (such as passwords, access keys, etc.). Instead 
+> modify your configuration in such a way, these secrets are obtained from a secure source (e.g. Repository Secrets). 
 
 ## :book: Contents
+ - [Mandatory Warnings](#bangbang-mandatory-warnings)
  - [Introduction](#nerd_face-introduction)
  - [Advanced Configuration](#detective-advanced-configuration)
    - [Reports](#memo-reports)
@@ -21,7 +40,8 @@ This action tries to simplify the usage of ZAP's Automation Framework, by automa
 at the same time, it can act as a basis for creating your custom workflow that will leverage the Automation
 Framework's features.
 
-:bangbang: Properly configuring the Automation Framework can be a PITA.
+> :bangbang: Properly configuring the Automation Framework can be a PITA. Please consult the [Automation Framework Configuration Guide](doc/AutomationFramework.md)
+on how you will properly configure the Automation Framework so that it can be used with this action.
 
 In its simplest form the action can be set up like this:
 ```yaml
@@ -154,8 +174,6 @@ Configure your action accordingly:
     create-issue: true
     json-file: 'report.json'
 ```
-
-
 
 ## :memo: Usage
 
