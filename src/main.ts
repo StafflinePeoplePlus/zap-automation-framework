@@ -65,12 +65,12 @@ async function run(): Promise<void> {
 
         if (createAnnotations) {
             const annotationWriter: WriterInterface = new AnnotationWriter()
-            reportWritersResult ||= annotationWriter.write(reportObj)
+            reportWritersResult ||= await annotationWriter.write(reportObj)
         }
 
         if (createIssue) {
             const issueWriter: WriterInterface = new IssueWriter(issueTitle)
-            reportWritersResult ||= issueWriter.write(reportObj)
+            reportWritersResult ||= await issueWriter.write(reportObj)
         }
 
         if (!reportWritersResult) {

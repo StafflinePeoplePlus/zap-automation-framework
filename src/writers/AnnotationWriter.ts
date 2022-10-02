@@ -1,11 +1,8 @@
 import * as core from '@actions/core'
-import {AnnotationProperties} from '@actions/core'
-
 import {WriterInterface} from './WriterInterface'
 import {ReportInterface} from '../reports/ReportInterface'
 import {SummaryInterface} from '../reports/SummaryInterface'
 import {Site} from '../reports/Site'
-import {SiteInterface} from '../reports/SiteInterface'
 
 export class AnnotationWriter implements WriterInterface {
 
