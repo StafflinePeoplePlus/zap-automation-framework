@@ -21,11 +21,11 @@ export async function pullDockerImage(dockerImage: string): Promise<number>
 export function getDockerCommand(dockerImage: string, configDir: string, reportsDir: string, autorunFile: string): string
 {
     const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
-    const bashCmd = `/zap/zap.sh -cmd -addonupdate; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
+    const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
 
     let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `
     dockerCmd += `-v ${workspace}/${reportsDir}:/zap/${reportsDir}/:rw `
-    dockerCmd += `--network="host" -t ${dockerImage} /bin/bash -c '${bashCmd}'`
+    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
 
     return dockerCmd
 }

@@ -139,10 +139,10 @@ exports.pullDockerImage = pullDockerImage;
 function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     var _a;
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
-    const bashCmd = `/zap/zap.sh -cmd -addonupdate; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
+    const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
     let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `;
     dockerCmd += `-v ${workspace}/${reportsDir}:/zap/${reportsDir}/:rw `;
-    dockerCmd += `--network="host" -t ${dockerImage} /bin/bash -c '${bashCmd}'`;
+    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
 exports.getDockerCommand = getDockerCommand;
