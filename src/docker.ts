@@ -23,8 +23,8 @@ export function getDockerCommand(dockerImage: string, configDir: string, reports
     const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
 
-    let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `
-    dockerCmd += `-v ${workspace}/${reportsDir}/:/zap/${reportsDir}/:rw `
+    let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=:/zap/${configDir} `
+    dockerCmd += `--mount type=bind,source=${workspace}/${reportsDir},target=:/zap/${reportsDir} `
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
 
     return dockerCmd
