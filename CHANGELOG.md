@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 - Mandatory warnings on [README.md](README.md)
 
+### Fixed
+- Crashing issue due to wrong docker image
+
 ## [0.1.0] - 2022-10-02
 
 ### Added

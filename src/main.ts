@@ -24,7 +24,7 @@ async function run(): Promise<void> {
         const configDir: string = core.getInput('config-dir')
         const reportsDir: string = core.getInput('reports-dir')
         const autorunFile: string = core.getInput('autorun-file')
-        const dockerImage: string = core.getInput('autorun-file')
+        const dockerImage: string = core.getInput('docker-image')
         const createIssue: boolean = core.getBooleanInput('create-issue')
         const summaryFile: string = core.getInput('summary-file')
         const jsonFile: string = core.getInput('json-file')

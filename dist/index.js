@@ -212,7 +212,7 @@ function run() {
             const configDir = core.getInput('config-dir');
             const reportsDir = core.getInput('reports-dir');
             const autorunFile = core.getInput('autorun-file');
-            const dockerImage = core.getInput('autorun-file');
+            const dockerImage = core.getInput('docker-image');
             const createIssue = core.getBooleanInput('create-issue');
             const summaryFile = core.getInput('summary-file');
             const jsonFile = core.getInput('json-file');
