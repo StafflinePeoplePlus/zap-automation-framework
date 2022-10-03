@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Crashing issue due to wrong docker image
 - Update docker run command
+- Fixed an issue with mounting the reports volume
+
 ## [0.1.0] - 2022-10-02
 
 ### Added

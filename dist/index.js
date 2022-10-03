@@ -141,7 +141,7 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
     let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `;
-    dockerCmd += `-v ${workspace}/${reportsDir}:/zap/${reportsDir}/:rw `;
+    dockerCmd += `-mount type=bind,source=${workspace}/${reportsDir},target=/zap/${reportsDir}/ `;
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
