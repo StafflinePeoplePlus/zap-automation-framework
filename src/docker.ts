@@ -25,7 +25,7 @@ export function getDockerCommand(dockerImage: string, configDir: string, reports
 
     let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `
     dockerCmd += `-v ${workspace}/${reportsDir}/:/zap/${reportsDir}/:rw `
-    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}'`
+    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
 
     return dockerCmd
 }

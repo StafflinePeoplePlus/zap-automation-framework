@@ -142,7 +142,7 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
     let dockerCmd = `docker run -v ${workspace}/${configDir}/:/zap/${configDir}/:rw `;
     dockerCmd += `-v ${workspace}/${reportsDir}/:/zap/${reportsDir}/:rw `;
-    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}'`;
+    dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
 exports.getDockerCommand = getDockerCommand;
