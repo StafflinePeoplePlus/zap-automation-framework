@@ -53,7 +53,6 @@ async function run(): Promise<void> {
 
         core.startGroup('Processing reports')
 
-
         const uploaded = await buildAndUploadArtifact(reportsDir)
         if (uploaded !== null) {
             artifactName = uploaded.artifactName
