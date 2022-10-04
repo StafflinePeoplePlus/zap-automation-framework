@@ -1,5 +1,5 @@
 import * as exec from '@actions/exec'
-
+import * as core from '@actions/core'
 /**
  * Pulls a docker image
  * @param {string} dockerImage The name of the image to be pulled
@@ -39,6 +39,8 @@ export async function copyFilesFromDocker(dockerImage: string, localDir: string)
         await exec.exec('docker stop $CONTAINER_ID')
     } catch (error)
     {
-        //TODO: Handle error
+        if (error instanceof Error) {
+            core.setFailed(error.message)
+        }
     }
 }

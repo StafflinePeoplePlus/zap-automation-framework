@@ -117,6 +117,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.copyFilesFromDocker = exports.getDockerCommand = exports.pullDockerImage = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
+const core = __importStar(__nccwpck_require__(2186));
 /**
  * Pulls a docker image
  * @param {string} dockerImage The name of the image to be pulled
@@ -155,7 +156,9 @@ function copyFilesFromDocker(dockerImage, localDir) {
             yield exec.exec('docker stop $CONTAINER_ID');
         }
         catch (error) {
-            //TODO: Handle error
+            if (error instanceof Error) {
+                core.setFailed(error.message);
+            }
         }
     });
 }
