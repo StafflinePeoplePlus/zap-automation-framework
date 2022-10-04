@@ -19,25 +19,32 @@ export class IssueWriter implements WriterInterface {
         const octoKit = github.getOctokit(token)
         const context = github.context
         const issues = await octoKit.rest.search.issuesAndPullRequests({
-            q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`).replace(/%20/g,'+'),
+            q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`)
+                .replace(/%20/g,'+'),
             sort: 'updated'
         })
 
         const existingIssue = issues.data.items.find( issue => issue.title === this.issueTitle)
 
-
-        if (existingIssue) {
-            await octoKit.rest.issues.update({
-                ...context.repo,
-                issue_number: existingIssue.number,
-                body: markdown
-            })
-        } else {
-            await octoKit.rest.issues.create({
-                ...context.repo,
-                title: this.issueTitle,
-                body: markdown
-            })
+        try {
+            if (existingIssue) {
+                await octoKit.rest.issues.update({
+                    ...context.repo,
+                    issue_number: existingIssue.number,
+                    body: markdown
+                })
+            } else {
+                await octoKit.rest.issues.create({
+                    ...context.repo,
+                    title: this.issueTitle,
+                    body: markdown
+                })
+            }
+        } catch (error) {
+            if (error instanceof Error)
+            {
+                core.warning(error.message)
+            }
         }
 
         return true

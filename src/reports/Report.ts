@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import * as fs from 'fs'
 import {Site} from './Site'
 import {Summary} from './Summary'
@@ -33,6 +34,7 @@ export class Report implements ReportInterface {
 
         fs.readFile(summaryFile, 'utf-8', (err, data) => {
             if (err) {
+                core.warning('Unable to read summary report file')
                 throw new Error('Unable to read summary report file')
             }
             const summaryData = JSON.parse(data)
@@ -41,7 +43,7 @@ export class Report implements ReportInterface {
 
         fs.readFile(jsonFile, 'utf-8', (err, data) => {
             if (err) {
-                console.warn('Unable to read traditional json report file')
+                core.warning('Unable to read traditional json report file')
                 return
             }
 

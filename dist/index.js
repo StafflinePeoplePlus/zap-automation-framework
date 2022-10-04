@@ -261,7 +261,7 @@ function run() {
                     ['volume', 'create', 'zap-volume']
                 )*/
                 const workspace = (_b = process.env.GITHUB_WORKSPACE) !== null && _b !== void 0 ? _b : '';
-                const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`;
+                const bashCmd = `/bin/bash -c "/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`;
                 let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
                 dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `;
                 dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
@@ -467,6 +467,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Report = void 0;
+const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const Site_1 = __nccwpck_require__(9383);
 const Summary_1 = __nccwpck_require__(3852);
@@ -476,6 +477,7 @@ class Report {
         this.jsonFile = jsonFile;
         fs.readFile(summaryFile, 'utf-8', (err, data) => {
             if (err) {
+                core.warning('Unable to read summary report file');
                 throw new Error('Unable to read summary report file');
             }
             const summaryData = JSON.parse(data);
@@ -484,7 +486,7 @@ class Report {
         fs.readFile(jsonFile, 'utf-8', (err, data) => {
             var _a;
             if (err) {
-                console.warn('Unable to read traditional json report file');
+                core.warning('Unable to read traditional json report file');
                 return;
             }
             const detailedData = JSON.parse(data);
@@ -812,15 +814,23 @@ class IssueWriter {
             const octoKit = github.getOctokit(token);
             const context = github.context;
             const issues = yield octoKit.rest.search.issuesAndPullRequests({
-                q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`).replace(/%20/g, '+'),
+                q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`)
+                    .replace(/%20/g, '+'),
                 sort: 'updated'
             });
             const existingIssue = issues.data.items.find(issue => issue.title === this.issueTitle);
-            if (existingIssue) {
-                yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: markdown }));
+            try {
+                if (existingIssue) {
+                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: markdown }));
+                }
+                else {
+                    yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body: markdown }));
+                }
             }
-            else {
-                yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body: markdown }));
+            catch (error) {
+                if (error instanceof Error) {
+                    core.warning(error.message);
+                }
             }
             return true;
         });

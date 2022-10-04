@@ -57,7 +57,7 @@ async function run(): Promise<void> {
             )*/
 
             const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
-            const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`
+            const bashCmd = `/bin/bash -c "/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`
 
             let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `
             dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
