@@ -266,7 +266,6 @@ function run() {
                     `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
                     '--mount',
                     `type=bind,source=${reportsDir},target=/zap/reports/`,
-                    '--network="host"',
                     '-t',
                     dockerImage,
                     `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`

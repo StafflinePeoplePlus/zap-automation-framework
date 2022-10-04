@@ -7,7 +7,8 @@
     "lint-report": "eslint ./src",
     "lint": "eslint ./src --fix",
     "build": "tsc",
-    "package": "ncc build --source-map --license licenses.txt"
+    "package": "ncc build --source-map --license licenses.txt",
+    "deploy": "tsc && ncc build --source-map --license licenses.txt"
   },
   "repository": {
     "type": "git",
