@@ -150,10 +150,17 @@ exports.getDockerCommand = getDockerCommand;
 function copyFilesFromDocker(dockerImage, localDir) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            let containerId = '';
+            const options = { listeners: {} };
+            options.listeners = {
+                stdout: (data) => {
+                    containerId += data;
+                }
+            };
             yield exec.exec(`docker run -d ${dockerImage}`);
-            yield exec.exec('CONTAINER_ID=$(docker ps -alq)');
-            yield exec.exec(`docker cp $CONTAINER_ID:/zap/reports ${localDir}`);
-            yield exec.exec('docker stop $CONTAINER_ID');
+            yield exec.exec('docker', ['ps', '-alq'], options);
+            yield exec.exec(`docker cp ${containerId}:/zap/reports ${localDir}`);
+            yield exec.exec(`docker stop ${containerId}`);
         }
         catch (error) {
             if (error instanceof Error) {

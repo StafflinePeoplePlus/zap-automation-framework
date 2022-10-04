@@ -33,10 +33,19 @@ export function getDockerCommand(dockerImage: string, configDir: string, reports
 export async function copyFilesFromDocker(dockerImage: string, localDir: string): Promise<void>
 {
     try {
+        let containerId = ''
+
+        const options = {listeners: {}}
+        options.listeners = {
+            stdout: (data: Buffer) => {
+                containerId += data
+            }
+        }
+
         await exec.exec(`docker run -d ${dockerImage}`)
-        await exec.exec('CONTAINER_ID=$(docker ps -alq)')
-        await exec.exec(`docker cp $CONTAINER_ID:/zap/reports ${localDir}`)
-        await exec.exec('docker stop $CONTAINER_ID')
+        await exec.exec('docker' ,['ps', '-alq'], options)
+        await exec.exec(`docker cp ${containerId}:/zap/reports ${localDir}`)
+        await exec.exec(`docker stop ${containerId}`)
     } catch (error)
     {
         if (error instanceof Error) {
