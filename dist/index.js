@@ -268,7 +268,7 @@ function run() {
                     `type=bind,source=${reportsDir},target=/zap/reports/`,
                     '--network="host"',
                     '-t',
-                    `/bin/bash -c "/zap/zap.sh -cmd -autorun=/zap/${configDir}/${autorunFile}"`
+                    `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
                 ]);
             }
             catch (error) {
