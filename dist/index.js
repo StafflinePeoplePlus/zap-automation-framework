@@ -265,7 +265,7 @@ function run() {
                     '--mount',
                     `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
                     '--mount',
-                    `type=bind,source=${reportsDir}:/zap/reports/`,
+                    `type=bind,source=${reportsDir},target=/zap/reports/`,
                     '--network="host"',
                     '-t',
                     `/bin/bash -c "/zap/zap.sh -cmd -autorun=/zap/${configDir}/${autorunFile}"`
