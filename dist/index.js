@@ -123,7 +123,7 @@ const exec = __importStar(__nccwpck_require__(1514));
  */
 function pullDockerImage(dockerImage) {
     return __awaiter(this, void 0, void 0, function* () {
-        return exec.exec(`docker pull ${dockerImage} -q`);
+        return exec.exec(`docker pull ${dockerImage}`);
     });
 }
 exports.pullDockerImage = pullDockerImage;
@@ -218,7 +218,7 @@ function run() {
             const jsonFile = core.getInput('json-file');
             const issueTitle = core.getInput('issue-title');
             const createAnnotations = core.getBooleanInput('create-annotations');
-            const reportsDir = '~/.zap/reports';
+            const reportsDir = '/home/runner/work/.zap/reports';
             yield io.mkdirP(reportsDir);
             let artifactName = '';
             checkAutorunFile(configDir, autorunFile);
