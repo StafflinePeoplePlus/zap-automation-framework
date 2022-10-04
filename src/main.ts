@@ -65,6 +65,7 @@ async function run(): Promise<void> {
                     `type=bind,source=${reportsDir},target=/zap/reports/`,
                     '--network="host"',
                     '-t',
+                    dockerImage,
                     `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
                 ]
             )

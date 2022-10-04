@@ -141,8 +141,8 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     var _a;
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
     const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`;
-    let dockerCmd = `docker run -d --name "zap-container" --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
-    //dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
+    let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
+    dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `;
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
@@ -268,6 +268,7 @@ function run() {
                     `type=bind,source=${reportsDir},target=/zap/reports/`,
                     '--network="host"',
                     '-t',
+                    dockerImage,
                     `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
                 ]);
             }
