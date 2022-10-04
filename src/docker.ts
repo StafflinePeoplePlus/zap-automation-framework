@@ -21,7 +21,7 @@ export async function pullDockerImage(dockerImage: string): Promise<number>
 export function getDockerCommand(dockerImage: string, configDir: string, reportsDir: string, autorunFile: string): string
 {
     const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
-    const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
+    const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`
 
     let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `
     dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
