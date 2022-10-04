@@ -6,7 +6,7 @@ import * as exec from '@actions/exec'
  */
 export async function pullDockerImage(dockerImage: string): Promise<number>
 {
-    return exec.exec(`docker pull ${dockerImage} -q`)
+    return exec.exec(`docker pull ${dockerImage}`)
 }
 
 /**
