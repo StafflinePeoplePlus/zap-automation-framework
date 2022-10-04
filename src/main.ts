@@ -30,7 +30,7 @@ async function run(): Promise<void> {
         const jsonFile: string = core.getInput('json-file')
         const issueTitle: string = core.getInput('issue-title')
         const createAnnotations: boolean = core.getBooleanInput('create-annotations')
-        const reportsDir = '/home/runner/work/.zap/reports'
+        const reportsDir = '/home/runner/.zap/reports'
 
         try {
             await io.mkdirP(reportsDir)
