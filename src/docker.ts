@@ -24,7 +24,7 @@ export function getDockerCommand(dockerImage: string, configDir: string, reports
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
 
     let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `
-    dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
+    dockerCmd += `-v ${reportsDir}:/zap/reports:rw `
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
 
     return dockerCmd
