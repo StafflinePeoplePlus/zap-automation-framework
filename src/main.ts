@@ -32,7 +32,12 @@ async function run(): Promise<void> {
         const createAnnotations: boolean = core.getBooleanInput('create-annotations')
         const reportsDir = '/home/runner/work/.zap/reports'
 
-        await io.mkdirP(reportsDir)
+        try {
+            await io.mkdirP(reportsDir)
+        } catch (error) {
+            core.setFailed(`Unable to create dir ${reportsDir}`)
+        }
+
         let artifactName = ''
 
         checkAutorunFile(configDir, autorunFile)

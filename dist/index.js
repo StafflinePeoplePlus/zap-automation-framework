@@ -141,7 +141,7 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
     let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
-    dockerCmd += `-v ${reportsDir}:/zap/reports:rw `;
+    dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `;
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
@@ -219,7 +219,12 @@ function run() {
             const issueTitle = core.getInput('issue-title');
             const createAnnotations = core.getBooleanInput('create-annotations');
             const reportsDir = '/home/runner/work/.zap/reports';
-            yield io.mkdirP(reportsDir);
+            try {
+                yield io.mkdirP(reportsDir);
+            }
+            catch (error) {
+                core.setFailed(`Unable to create dir ${reportsDir}`);
+            }
             let artifactName = '';
             checkAutorunFile(configDir, autorunFile);
             core.startGroup('Scan Execution');
