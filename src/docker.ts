@@ -6,7 +6,7 @@ import * as exec from '@actions/exec'
  */
 export async function pullDockerImage(dockerImage: string): Promise<number>
 {
-    return exec.exec(`docker pull ${dockerImage}`)
+    return exec.exec(`docker pull ${dockerImage} -q`)
 }
 
 /**
@@ -24,7 +24,7 @@ export function getDockerCommand(dockerImage: string, configDir: string, reports
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
 
     let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `
-    dockerCmd += `--mount type=bind,source=${workspace}/${reportsDir},target=/zap/reports `
+    dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
 
     return dockerCmd

@@ -14,7 +14,7 @@ async function getFileList(dir: string) {
 }
 
 export async function buildAndUploadArtifact(reportsDir: string) {
-    const rootDirectory = `${process.env.GITHUB_WORKSPACE}/${reportsDir}`
+    const rootDirectory = reportsDir
 
     if (!checkReportsDirectory(rootDirectory)) {
         return null
