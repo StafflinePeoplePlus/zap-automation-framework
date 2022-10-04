@@ -7,10 +7,6 @@ inputs:
   config-dir:
     required: true
     description: 'The directory which contains the automation framework configuration and relevant scripts'
-  reports-dir:
-    required: false
-    description: 'The directory where artifacts (e.g.) reports will be stored after their production'
-    default: 'reports'
   autorun-file:
     required: true
     description: 'The actual configuration of the automation framework'

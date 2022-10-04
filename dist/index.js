@@ -141,7 +141,7 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
     const bashCmd = `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`;
     let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
-    dockerCmd += `--mount type=bind,source=${workspace}/${reportsDir},target=/zap/${reportsDir} `;
+    dockerCmd += `--mount type=bind,source=${workspace}/${reportsDir},target=/zap/reports `;
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
@@ -190,6 +190,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const docker_1 = __nccwpck_require__(3758);
 const artifact_1 = __nccwpck_require__(7917);
@@ -210,7 +211,6 @@ function run() {
         try {
             const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
             const configDir = core.getInput('config-dir');
-            const reportsDir = core.getInput('reports-dir');
             const autorunFile = core.getInput('autorun-file');
             const dockerImage = core.getInput('docker-image');
             const createIssue = core.getBooleanInput('create-issue');
@@ -218,6 +218,8 @@ function run() {
             const jsonFile = core.getInput('json-file');
             const issueTitle = core.getInput('issue-title');
             const createAnnotations = core.getBooleanInput('create-annotations');
+            const reportsDir = '~/.zap/reports';
+            yield io.mkdirP(reportsDir);
             let artifactName = '';
             checkAutorunFile(configDir, autorunFile);
             core.startGroup('Scan Execution');
@@ -239,7 +241,7 @@ function run() {
                 core.endGroup();
                 return;
             }
-            const reportObj = new Report_1.Report(`${workspace}/${reportsDir}/${summaryFile}`, `${workspace}/${reportsDir}/${jsonFile}`);
+            const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
             let reportWritersResult = false;
             if (createAnnotations) {
                 const annotationWriter = new AnnotationWriter_1.AnnotationWriter();
@@ -9892,63 +9894,67 @@ function range(a, b, str) {
 /***/ 3682:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var register = __nccwpck_require__(4670)
-var addHook = __nccwpck_require__(5549)
-var removeHook = __nccwpck_require__(6819)
+var register = __nccwpck_require__(4670);
+var addHook = __nccwpck_require__(5549);
+var removeHook = __nccwpck_require__(6819);
 
 // bind with array of arguments: https://stackoverflow.com/a/21792913
-var bind = Function.bind
-var bindable = bind.bind(bind)
+var bind = Function.bind;
+var bindable = bind.bind(bind);
 
-function bindApi (hook, state, name) {
-  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
-  hook.api = { remove: removeHookRef }
-  hook.remove = removeHookRef
-
-  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
-    var args = name ? [state, kind, name] : [state, kind]
-    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
-  })
+function bindApi(hook, state, name) {
+  var removeHookRef = bindable(removeHook, null).apply(
+    null,
+    name ? [state, name] : [state]
+  );
+  hook.api = { remove: removeHookRef };
+  hook.remove = removeHookRef;
+  ["before", "error", "after", "wrap"].forEach(function (kind) {
+    var args = name ? [state, kind, name] : [state, kind];
+    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args);
+  });
 }
 
-function HookSingular () {
-  var singularHookName = 'h'
+function HookSingular() {
+  var singularHookName = "h";
   var singularHookState = {
-    registry: {}
-  }
-  var singularHook = register.bind(null, singularHookState, singularHookName)
-  bindApi(singularHook, singularHookState, singularHookName)
-  return singularHook
+    registry: {},
+  };
+  var singularHook = register.bind(null, singularHookState, singularHookName);
+  bindApi(singularHook, singularHookState, singularHookName);
+  return singularHook;
 }
 
-function HookCollection () {
+function HookCollection() {
   var state = {
-    registry: {}
-  }
+    registry: {},
+  };
 
-  var hook = register.bind(null, state)
-  bindApi(hook, state)
+  var hook = register.bind(null, state);
+  bindApi(hook, state);
 
-  return hook
+  return hook;
 }
 
-var collectionHookDeprecationMessageDisplayed = false
-function Hook () {
+var collectionHookDeprecationMessageDisplayed = false;
+function Hook() {
   if (!collectionHookDeprecationMessageDisplayed) {
-    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
-    collectionHookDeprecationMessageDisplayed = true
+    console.warn(
+      '[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4'
+    );
+    collectionHookDeprecationMessageDisplayed = true;
   }
-  return HookCollection()
+  return HookCollection();
 }
 
-Hook.Singular = HookSingular.bind()
-Hook.Collection = HookCollection.bind()
+Hook.Singular = HookSingular.bind();
+Hook.Collection = HookCollection.bind();
 
-module.exports = Hook
+module.exports = Hook;
 // expose constructors as a named property for TypeScript
-module.exports.Hook = Hook
-module.exports.Singular = Hook.Singular
-module.exports.Collection = Hook.Collection
+module.exports.Hook = Hook;
+module.exports.Singular = Hook.Singular;
+module.exports.Collection = Hook.Collection;
 
 
 /***/ }),

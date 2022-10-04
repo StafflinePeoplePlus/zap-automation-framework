@@ -219,13 +219,6 @@ Configure your action accordingly:
 - The directory must be relative to the `$GITHUB_WORKSPACE` directory.
 - The directory will be mounted under `/zap` in the container. For example, if your configuration dir is `zap-config`, the directory in the container will be accessible via `/zap/zap-config`.
 
-#### `reports-dir` (Optional)
-- The directory where reports will be stored after their production.
-- Accepts a `string` (e.g. `zap-artifacts`).
-- The directory must be relative to the `$GITHUB_WORKSPACE` directory.
-- As with the `config-dir` input, the directory will be mounted under `/zap` in the container.
-- By default, has the value of `zap-artifacts`.
-
 #### `autorun-file` (Required)
 - The actual configuration that will be used by the automation framework.
 - Accepts a `string` (e.g. `autorun.yaml`).

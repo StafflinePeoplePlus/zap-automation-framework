@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
+import * as io from '@actions/io'
 import * as fs from 'fs'
 import {pullDockerImage, getDockerCommand} from './docker'
 import {buildAndUploadArtifact} from './artifact'
@@ -22,7 +23,6 @@ async function run(): Promise<void> {
     try {
         const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
         const configDir: string = core.getInput('config-dir')
-        const reportsDir: string = core.getInput('reports-dir')
         const autorunFile: string = core.getInput('autorun-file')
         const dockerImage: string = core.getInput('docker-image')
         const createIssue: boolean = core.getBooleanInput('create-issue')
@@ -30,7 +30,9 @@ async function run(): Promise<void> {
         const jsonFile: string = core.getInput('json-file')
         const issueTitle: string = core.getInput('issue-title')
         const createAnnotations: boolean = core.getBooleanInput('create-annotations')
+        const reportsDir = '~/.zap/reports'
 
+        await io.mkdirP(reportsDir)
         let artifactName = ''
 
         checkAutorunFile(configDir, autorunFile)
@@ -57,8 +59,8 @@ async function run(): Promise<void> {
         }
 
         const reportObj: ReportInterface = new Report(
-            `${workspace}/${reportsDir}/${summaryFile}`,
-            `${workspace}/${reportsDir}/${jsonFile}`
+            `${reportsDir}/${summaryFile}`,
+            `${reportsDir}/${jsonFile}`
         )
 
         let reportWritersResult = false
