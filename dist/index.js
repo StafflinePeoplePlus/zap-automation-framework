@@ -250,14 +250,31 @@ function run() {
             }
             let artifactName = '';
             checkAutorunFile(configDir, autorunFile);
-            core.startGroup('Scan Execution');
+            core.startGroup('Pulling ZAP Image');
             yield (0, docker_1.pullDockerImage)(dockerImage);
+            core.endGroup();
+            core.startGroup('Scan Execution');
             try {
-                yield exec.exec((0, docker_1.getDockerCommand)(dockerImage, configDir, reportsDir, autorunFile));
-                yield (0, docker_1.copyFilesFromDocker)(dockerImage, reportsDir);
+                yield exec.exec('chmod', ['2777', reportsDir]);
+                /*await exec.exec(
+                    'docker',
+                    ['volume', 'create', 'zap-volume']
+                )*/
+                yield exec.exec('docker', [
+                    'run',
+                    '--mount',
+                    `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
+                    '--mount',
+                    `type=bind,source=${reportsDir}:/zap/reports/`,
+                    '--network="host"',
+                    '-t',
+                    `/bin/bash -c "/zap/zap.sh -cmd -autorun=/zap/${configDir}/${autorunFile}"`
+                ]);
             }
             catch (error) {
-                //TODO: Handle error
+                if (error instanceof Error) {
+                    core.error(error.message);
+                }
             }
             core.endGroup();
             core.startGroup('Processing reports');

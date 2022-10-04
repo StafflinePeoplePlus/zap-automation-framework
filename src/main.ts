@@ -41,14 +41,38 @@ async function run(): Promise<void> {
         let artifactName = ''
 
         checkAutorunFile(configDir, autorunFile)
-        core.startGroup('Scan Execution')
+        core.startGroup('Pulling ZAP Image')
         await pullDockerImage(dockerImage)
+        core.endGroup()
 
+        core.startGroup('Scan Execution')
         try {
-            await exec.exec(getDockerCommand(dockerImage, configDir, reportsDir, autorunFile))
-            await copyFilesFromDocker(dockerImage, reportsDir)
+            await exec.exec(
+                'chmod',
+                ['2777', reportsDir]
+            )
+            /*await exec.exec(
+                'docker',
+                ['volume', 'create', 'zap-volume']
+            )*/
+            await exec.exec(
+                'docker',
+                [
+                    'run',
+                    '--mount',
+                    `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
+                    '--mount',
+                    `type=bind,source=${reportsDir}:/zap/reports/`,
+                    '--network="host"',
+                    '-t',
+                    `/bin/bash -c "/zap/zap.sh -cmd -autorun=/zap/${configDir}/${autorunFile}"`
+                ]
+            )
         } catch (error) {
-            //TODO: Handle error
+            if (error instanceof Error)
+            {
+                core.error(error.message)
+            }
         }
         core.endGroup()
 
