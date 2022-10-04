@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
 import * as fs from 'fs'
-import {pullDockerImage, getDockerCommand} from './docker'
+import {pullDockerImage, getDockerCommand, copyFilesFromDocker} from './docker'
 import {buildAndUploadArtifact} from './artifact'
 import {ReportInterface} from './reports/ReportInterface'
 import {Report} from './reports/Report'
@@ -46,6 +46,7 @@ async function run(): Promise<void> {
 
         try {
             await exec.exec(getDockerCommand(dockerImage, configDir, reportsDir, autorunFile))
+            await copyFilesFromDocker(dockerImage, reportsDir)
         } catch (error) {
             //TODO: Handle error
         }

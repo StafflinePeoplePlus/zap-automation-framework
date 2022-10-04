@@ -115,7 +115,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDockerCommand = exports.pullDockerImage = void 0;
+exports.copyFilesFromDocker = exports.getDockerCommand = exports.pullDockerImage = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
 /**
  * Pulls a docker image
@@ -140,12 +140,26 @@ function getDockerCommand(dockerImage, configDir, reportsDir, autorunFile) {
     var _a;
     const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
     const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`;
-    let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
-    dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `;
+    let dockerCmd = `docker run --name "zap-container" --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
+    //dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
     dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
     return dockerCmd;
 }
 exports.getDockerCommand = getDockerCommand;
+function copyFilesFromDocker(dockerImage, localDir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield exec.exec(`docker run -d ${dockerImage}`);
+            yield exec.exec('CONTAINER_ID=$(docker ps -alq)');
+            yield exec.exec(`docker cp $CONTAINER_ID:/zap/reports ${localDir}`);
+            yield exec.exec('docker stop $CONTAINER_ID');
+        }
+        catch (error) {
+            //TODO: Handle error
+        }
+    });
+}
+exports.copyFilesFromDocker = copyFilesFromDocker;
 
 
 /***/ }),
@@ -231,6 +245,7 @@ function run() {
             yield (0, docker_1.pullDockerImage)(dockerImage);
             try {
                 yield exec.exec((0, docker_1.getDockerCommand)(dockerImage, configDir, reportsDir, autorunFile));
+                yield (0, docker_1.copyFilesFromDocker)(dockerImage, reportsDir);
             }
             catch (error) {
                 //TODO: Handle error
