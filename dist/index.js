@@ -229,7 +229,7 @@ function checkAutorunFile(configDir, autorunFile) {
     }
 }
 function run() {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const workspace = (_a = process.env.GITHUB_WORKSPACE) !== null && _a !== void 0 ? _a : '';
@@ -260,16 +260,12 @@ function run() {
                     'docker',
                     ['volume', 'create', 'zap-volume']
                 )*/
-                yield exec.exec('docker', [
-                    'run',
-                    '--mount',
-                    `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
-                    '--mount',
-                    `type=bind,source=${reportsDir},target=/zap/reports/`,
-                    '-t',
-                    dockerImage,
-                    `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
-                ]);
+                const workspace = (_b = process.env.GITHUB_WORKSPACE) !== null && _b !== void 0 ? _b : '';
+                const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`;
+                let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `;
+                dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `;
+                dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`;
+                yield exec.exec(dockerCmd);
             }
             catch (error) {
                 if (error instanceof Error) {

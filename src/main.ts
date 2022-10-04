@@ -55,19 +55,15 @@ async function run(): Promise<void> {
                 'docker',
                 ['volume', 'create', 'zap-volume']
             )*/
-            await exec.exec(
-                'docker',
-                [
-                    'run',
-                    '--mount',
-                    `type=bind,source=${workspace}/${configDir}/,target=/zap/${configDir}/`,
-                    '--mount',
-                    `type=bind,source=${reportsDir},target=/zap/reports/`,
-                    '-t',
-                    dockerImage,
-                    `/zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}`
-                ]
-            )
+
+            const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
+            const bashCmd = `/bin/bash -c "mkdir reports; /zap/zap.sh -cmd -autorun /zap/${configDir}/${autorunFile}"`
+
+            let dockerCmd = `docker run --mount type=bind,source=${workspace}/${configDir},target=/zap/${configDir} `
+            dockerCmd += `--mount type=bind,source=${reportsDir},target=/zap/reports `
+            dockerCmd += `--network="host" -t ${dockerImage} ${bashCmd}`
+
+            await exec.exec(dockerCmd)
         } catch (error) {
             if (error instanceof Error)
             {
