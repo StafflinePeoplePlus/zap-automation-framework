@@ -37,6 +37,7 @@ export class Report implements ReportInterface {
                 core.warning('Unable to read summary report file')
                 throw new Error('Unable to read summary report file')
             }
+            console.log(data)
             const summaryData = JSON.parse(data)
             this.summary = new Summary(summaryData)
         })
@@ -48,7 +49,7 @@ export class Report implements ReportInterface {
             }
 
             const detailedData = JSON.parse(data)
-
+            console.log(data)
             // eslint-disable-next-line no-prototype-builtins
             if (detailedData.hasOwnProperty('site')) {
                 this.sites = []
