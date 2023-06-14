@@ -89,7 +89,9 @@ export class IssueWriter implements WriterInterface {
 
     private getAlertText(alert: AlertInterface): string {
         return `
-### ${alert.riskCode.getEmoji()} ${alert.getName()} (${alert.getRiskDescription()}) &mdash; ${alert.count} Occurrences
+### ${alert.riskCode.getEmoji()} ${alert.getName()} (${alert.getRiskDescription()}) &mdash; ${
+            alert.count
+        } Occurrences
 
 <details>
 <summary>See details</summary>
@@ -113,7 +115,8 @@ ${alert.otherInfo}
 
 <details>
 <summary>See instances</summary>
-${this.getAlertInstancesTable(alert.instances)}
+
+${this.getAlertInstancesText(alert.instances)}
 </details>
 
 
@@ -121,17 +124,25 @@ ${this.getAlertInstancesTable(alert.instances)}
 `
     }
 
-    private getAlertInstancesTable(
-        instances: AlertInstanceInterface[]
-    ): string {
+    private getAlertInstancesText(instances: AlertInstanceInterface[]): string {
         return `
-| Method | URL | Param | Evidence | Other Info |
-|--------|-----|-------|----------|------------|
-${instances.map(i => this.getAlertInstanceRow(i)).join('\n')}
+${instances.map(i => this.getAlertInstanceText(i)).join('\n')}
 `
     }
 
-    private getAlertInstanceRow(instance: AlertInstanceInterface): string {
-        return `| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} |`.replace(/\n/g, '<br />')
+    private getAlertInstanceText(instance: AlertInstanceInterface): string {
+        const param = instance.param && `- \`${instance.param}\``
+        return `- **${instance.method}** ${instance.uri} ${param}
+  <details>
+    <summary>See Details</summary>
+
+   ##### Evidence
+   \`\`\`
+   ${instance.evidence.replace(/\r?\n/g, '\r  ')}
+   \`\`\`
+
+   ##### Other Info
+   ${instance.otherInfo.replace(/\r?\n/g, '\r  ')}
+  </details>`
     }
 }

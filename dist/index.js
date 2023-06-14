@@ -970,22 +970,33 @@ ${alert.otherInfo}
 
 <details>
 <summary>See instances</summary>
-${this.getAlertInstancesTable(alert.instances)}
+
+${this.getAlertInstancesText(alert.instances)}
 </details>
 
 
 
 `;
     }
-    getAlertInstancesTable(instances) {
+    getAlertInstancesText(instances) {
         return `
-| Method | URL | Param | Evidence | Other Info |
-|--------|-----|-------|----------|------------|
-${instances.map(i => this.getAlertInstanceRow(i)).join('\n')}
+${instances.map(i => this.getAlertInstanceText(i)).join('\n')}
 `;
     }
-    getAlertInstanceRow(instance) {
-        return `| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} |`.replace(/\n/g, '<br />');
+    getAlertInstanceText(instance) {
+        const param = instance.param && `- \`${instance.param}\``;
+        return `- **${instance.method}** ${instance.uri} ${param}
+  <details>
+    <summary>See Details</summary>
+
+   ##### Evidence
+   \`\`\`
+   ${instance.evidence.replace(/\r?\n/g, '\r  ')}
+   \`\`\`
+
+   ##### Other Info
+   ${instance.otherInfo.replace(/\r?\n/g, '\r  ')}
+  </details>`;
     }
 }
 exports.IssueWriter = IssueWriter;
