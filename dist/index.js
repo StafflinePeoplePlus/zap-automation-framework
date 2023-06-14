@@ -951,6 +951,8 @@ class IssueWriter {
 <details>
 <summary>See details</summary>
 
+ID: \`${alert.sourceId}\`
+
 ### Description
 
 ${alert.description}

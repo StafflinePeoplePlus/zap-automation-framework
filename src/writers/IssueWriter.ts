@@ -96,6 +96,8 @@ export class IssueWriter implements WriterInterface {
 <details>
 <summary>See details</summary>
 
+ID: \`${alert.sourceId}\`
+
 ### Description
 
 ${alert.description}
