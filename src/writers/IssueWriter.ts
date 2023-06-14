@@ -93,6 +93,7 @@ export class IssueWriter implements WriterInterface {
 
 <details>
 <summary>See details</summary>
+
 ### Description
 
 ${alert.description}
