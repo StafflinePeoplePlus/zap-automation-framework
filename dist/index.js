@@ -339,8 +339,8 @@ class Alert {
         this.pluginId = alertData.hasOwnProperty('pluginid')
             ? alertData['pluginid']
             : '';
-        this.alertRef = alertData.hasOwnProperty('alertref')
-            ? alertData['alertref']
+        this.alertRef = alertData.hasOwnProperty('alertRef')
+            ? alertData['alertRef']
             : '';
         this.alert = alertData.hasOwnProperty('alert') ? alertData['alert'] : '';
         this.name = alertData.hasOwnProperty('name') ? alertData['name'] : '';
