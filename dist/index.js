@@ -950,6 +950,7 @@ class IssueWriter {
 
 <details>
 <summary>See details</summary>
+
 ### Description
 
 ${alert.description}
@@ -984,9 +985,7 @@ ${instances.map(i => this.getAlertInstanceRow(i)).join('\n')}
 `;
     }
     getAlertInstanceRow(instance) {
-        return `
-| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} | 
-`.replace(/\n/g, '<br />');
+        return `| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} |`.replace(/\n/g, '<br />');
     }
 }
 exports.IssueWriter = IssueWriter;

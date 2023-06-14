@@ -132,8 +132,6 @@ ${instances.map(i => this.getAlertInstanceRow(i)).join('\n')}
     }
 
     private getAlertInstanceRow(instance: AlertInstanceInterface): string {
-        return `
-| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} | 
-`.replace(/\n/g, '<br />')
+        return `| ${instance.method} | ${instance.uri} | ${instance.param} | ${instance.evidence} | ${instance.otherInfo} |`.replace(/\n/g, '<br />')
     }
 }
