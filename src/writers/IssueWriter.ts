@@ -94,18 +94,22 @@ export class IssueWriter implements WriterInterface {
 ### ${alert.riskCode.getEmoji()} ${alert.getName()} (${alert.getRiskDescription()}) &mdash; ${alert.count} Occurrences
 
 <details>
-    <summary>See details</summary>
-    #### Description
-    
-    ${alert.description}
-    
-    #### Solution
-    
-    ${alert.solution}
-    
-    #### Other Info
-    
-    ${alert.otherInfo}
+<summary>See details</summary>
+### Description
+
+${alert.description}
+
+---
+
+### Solution
+
+${alert.solution}
+
+---
+
+### Other Info
+
+${alert.otherInfo}
 </details>
 
 
