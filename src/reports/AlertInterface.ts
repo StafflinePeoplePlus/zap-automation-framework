@@ -1,8 +1,8 @@
 import {RiskCodeInterface} from './RiskCodeInterface'
 import {ConfidenceInterface} from './ConfidenceInterface'
+import {AlertInstanceInterface} from './AlertInstanceInterface'
 
-export interface AlertInterface
-{
+export interface AlertInterface {
     /**
      * The Plugin ID
      */
@@ -78,6 +78,11 @@ export interface AlertInterface
      */
     sourceId: string
 
+    /**
+     * List of instances where this alert was raised
+     */
+    instances: AlertInstanceInterface[]
+
     getPluginId(): string
     getAlertRef(): string
     getAlert(): string
@@ -93,4 +98,5 @@ export interface AlertInterface
     getCWEID(): string
     getWASCID(): string
     getSourceID(): string
+    getInstances(): AlertInstanceInterface[]
 }
