@@ -25,31 +25,24 @@ export class Report implements ReportInterface {
      */
     summary?: Summary
 
-    constructor(
-        summaryFile: string,
-        jsonFile: string
-    ) {
+    constructor(summaryFile: string, jsonFile: string) {
         this.summaryFile = summaryFile
         this.jsonFile = jsonFile
 
-        fs.readFile(summaryFile, 'utf-8', (err, data) => {
-            if (err) {
-                core.warning('Unable to read summary report file')
-                throw new Error('Unable to read summary report file')
-            }
+        try {
+            const data = fs.readFileSync(summaryFile, 'utf-8')
             console.log(data)
             const summaryData = JSON.parse(data)
             this.summary = new Summary(summaryData)
-        })
+        } catch {
+            core.warning('Unable to read summary report file')
+            throw new Error('Unable to read summary report file')
+        }
 
-        fs.readFile(jsonFile, 'utf-8', (err, data) => {
-            if (err) {
-                core.warning('Unable to read traditional json report file')
-                return
-            }
-
-            const detailedData = JSON.parse(data)
+        try {
+            const data = fs.readFileSync(jsonFile, 'utf-8')
             console.log(data)
+            const detailedData = JSON.parse(data)
             // eslint-disable-next-line no-prototype-builtins
             if (detailedData.hasOwnProperty('site')) {
                 this.sites = []
@@ -61,7 +54,9 @@ export class Report implements ReportInterface {
                     this.sites?.push(siteObj)
                 }
             }
-        })
+        } catch {
+            core.warning('Unable to read traditional json report file')
+        }
     }
 
     /**

@@ -286,6 +286,7 @@ function run() {
             const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
             let reportWritersResult = false;
             if (createAnnotations) {
+                core.info('Let\'s write some annotations!');
                 const annotationWriter = new AnnotationWriter_1.AnnotationWriter();
                 reportWritersResult || (reportWritersResult = yield annotationWriter.write(reportObj));
             }
@@ -473,22 +474,22 @@ const Site_1 = __nccwpck_require__(9383);
 const Summary_1 = __nccwpck_require__(3852);
 class Report {
     constructor(summaryFile, jsonFile) {
+        var _a;
         this.summaryFile = summaryFile;
         this.jsonFile = jsonFile;
-        fs.readFile(summaryFile, 'utf-8', (err, data) => {
-            if (err) {
-                core.warning('Unable to read summary report file');
-                throw new Error('Unable to read summary report file');
-            }
+        try {
+            const data = fs.readFileSync(summaryFile, 'utf-8');
+            console.log(data);
             const summaryData = JSON.parse(data);
             this.summary = new Summary_1.Summary(summaryData);
-        });
-        fs.readFile(jsonFile, 'utf-8', (err, data) => {
-            var _a;
-            if (err) {
-                core.warning('Unable to read traditional json report file');
-                return;
-            }
+        }
+        catch (_b) {
+            core.warning('Unable to read summary report file');
+            throw new Error('Unable to read summary report file');
+        }
+        try {
+            const data = fs.readFileSync(jsonFile, 'utf-8');
+            console.log(data);
             const detailedData = JSON.parse(data);
             // eslint-disable-next-line no-prototype-builtins
             if (detailedData.hasOwnProperty('site')) {
@@ -499,7 +500,10 @@ class Report {
                     (_a = this.sites) === null || _a === void 0 ? void 0 : _a.push(siteObj);
                 }
             }
-        });
+        }
+        catch (_c) {
+            core.warning('Unable to read traditional json report file');
+        }
     }
     /**
      * @inheritDoc
