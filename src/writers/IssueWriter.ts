@@ -80,6 +80,9 @@ export class IssueWriter implements WriterInterface {
 
         if (site.alerts !== undefined && site.alerts.length > 0) {
             for (const alert of site.alerts) {
+                if (alert.getRiskDescription().includes('False Positive')) {
+                    continue
+                }
                 markdown += this.getAlertText(alert)
             }
         }
@@ -96,7 +99,7 @@ export class IssueWriter implements WriterInterface {
 <details>
 <summary>See details</summary>
 
-ID: \`${alert.sourceId}\`
+Ref: \`${alert.alertRef}\`
 
 ### Description
 

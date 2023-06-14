@@ -12,10 +12,14 @@ import {IssueWriter} from './writers/IssueWriter'
 
 function checkAutorunFile(configDir: string, autorunFile: string): void {
     const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
-    const exists: boolean = fs.existsSync(`${workspace}/${configDir}/${autorunFile}`)
+    const exists: boolean = fs.existsSync(
+        `${workspace}/${configDir}/${autorunFile}`
+    )
 
     if (!exists) {
-        throw new Error('Autorun configuration does not exist in the specified path!')
+        throw new Error(
+            'Autorun configuration does not exist in the specified path!'
+        )
     }
 }
 
@@ -29,7 +33,14 @@ async function run(): Promise<void> {
         const summaryFile: string = core.getInput('summary-file')
         const jsonFile: string = core.getInput('json-file')
         const issueTitle: string = core.getInput('issue-title')
-        const createAnnotations: boolean = core.getBooleanInput('create-annotations')
+        const createAnnotations: boolean =
+            core.getBooleanInput('create-annotations')
+        const failActionOnFailure: boolean = core.getBooleanInput(
+            'fail-action-on-failure'
+        )
+        const failActionOnWarning: boolean = core.getBooleanInput(
+            'fail-action-on-warning'
+        )
         const reportsDir = '/home/runner/.zap/reports'
 
         try {
@@ -47,10 +58,7 @@ async function run(): Promise<void> {
 
         core.startGroup('Scan Execution')
         try {
-            await exec.exec(
-                'chmod',
-                ['2777', reportsDir]
-            )
+            await exec.exec('chmod', ['2777', reportsDir])
             /*await exec.exec(
                 'docker',
                 ['volume', 'create', 'zap-volume']
@@ -65,8 +73,7 @@ async function run(): Promise<void> {
 
             await exec.exec(dockerCmd)
         } catch (error) {
-            if (error instanceof Error)
-            {
+            if (error instanceof Error) {
                 core.error(error.message)
             }
         }
@@ -80,20 +87,33 @@ async function run(): Promise<void> {
             core.info(`Build artifact was created: ${artifactName}`)
         }
 
-        if (!createIssue && !createAnnotations) {
-            core.endGroup()
-            return
-        }
-
         const reportObj: ReportInterface = new Report(
             `${reportsDir}/${summaryFile}`,
             `${reportsDir}/${jsonFile}`
         )
 
+        if (reportObj.summary) {
+            if (failActionOnFailure && reportObj.summary.hasFailures()) {
+                core.setFailed(`${reportObj.summary.getFailures()} failures`)
+            } else if (
+                failActionOnWarning &&
+                reportObj.summary.hasWarningsOrFailures()
+            ) {
+                core.setFailed(
+                    `${reportObj.summary.getFailures()} failures and ${reportObj.summary.getWarnings()} warnings`
+                )
+            }
+        }
+
+        if (!createIssue && !createAnnotations) {
+            core.endGroup()
+            return
+        }
+
         let reportWritersResult = false
 
         if (createAnnotations) {
-            core.info('Let\'s write some annotations!')
+            core.info("Let's write some annotations!")
             const annotationWriter: WriterInterface = new AnnotationWriter()
             reportWritersResult ||= await annotationWriter.write(reportObj)
         }
@@ -104,10 +124,11 @@ async function run(): Promise<void> {
         }
 
         if (!reportWritersResult) {
-            core.warning('No reports were written although it was specified in the configuration!')
+            core.warning(
+                'No reports were written although it was specified in the configuration!'
+            )
         }
         core.endGroup()
-
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message)

@@ -241,6 +241,8 @@ function run() {
             const jsonFile = core.getInput('json-file');
             const issueTitle = core.getInput('issue-title');
             const createAnnotations = core.getBooleanInput('create-annotations');
+            const failActionOnFailure = core.getBooleanInput('fail-action-on-failure');
+            const failActionOnWarning = core.getBooleanInput('fail-action-on-warning');
             const reportsDir = '/home/runner/.zap/reports';
             try {
                 yield io.mkdirP(reportsDir);
@@ -279,14 +281,23 @@ function run() {
                 artifactName = uploaded.artifactName;
                 core.info(`Build artifact was created: ${artifactName}`);
             }
+            const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
+            if (reportObj.summary) {
+                if (failActionOnFailure && reportObj.summary.hasFailures()) {
+                    core.setFailed(`${reportObj.summary.getFailures()} failures`);
+                }
+                else if (failActionOnWarning &&
+                    reportObj.summary.hasWarningsOrFailures()) {
+                    core.setFailed(`${reportObj.summary.getFailures()} failures and ${reportObj.summary.getWarnings()} warnings`);
+                }
+            }
             if (!createIssue && !createAnnotations) {
                 core.endGroup();
                 return;
             }
-            const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
             let reportWritersResult = false;
             if (createAnnotations) {
-                core.info('Let\'s write some annotations!');
+                core.info("Let's write some annotations!");
                 const annotationWriter = new AnnotationWriter_1.AnnotationWriter();
                 reportWritersResult || (reportWritersResult = yield annotationWriter.write(reportObj));
             }
@@ -939,6 +950,9 @@ class IssueWriter {
         let markdown = `## Report for ${site.name}`;
         if (site.alerts !== undefined && site.alerts.length > 0) {
             for (const alert of site.alerts) {
+                if (alert.getRiskDescription().includes('False Positive')) {
+                    continue;
+                }
                 markdown += this.getAlertText(alert);
             }
         }
@@ -951,7 +965,7 @@ class IssueWriter {
 <details>
 <summary>See details</summary>
 
-ID: \`${alert.sourceId}\`
+Ref: \`${alert.alertRef}\`
 
 ### Description
 

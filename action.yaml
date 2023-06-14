@@ -38,6 +38,14 @@ inputs:
     description: 'Creates annotations'
     required: false
     default: false
+  fail-action-on-failure:
+    description: 'Mark the action as failed if there are any failures'
+    required: false
+    default: false
+  fail-action-on-warning:
+    description: 'Mark the action as failed if there are any warnings or failures'
+    required: false
+    default: false
 
 runs:
   using: 'node16'
