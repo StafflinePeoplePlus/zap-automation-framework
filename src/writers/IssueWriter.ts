@@ -14,7 +14,6 @@ export class IssueWriter implements WriterInterface {
     }
 
     async write(report: ReportInterface): Promise<boolean> {
-        const markdown = this.produceMarkdown(report)
         const token = core.getInput('token')
         const octoKit = github.getOctokit(token)
         const context = github.context
@@ -28,6 +27,23 @@ export class IssueWriter implements WriterInterface {
         const existingIssue = issues.data.items.find(
             issue => issue.title === this.issueTitle
         )
+        if (report.summary && !report.summary.hasWarningsOrFailures()) {
+            if (existingIssue) {
+                await octoKit.rest.issues.createComment({
+                    ...context.repo,
+                    issue_number: existingIssue.number,
+                    body: 'All warnings and errors have been fixed!'
+                })
+                await octoKit.rest.issues.update({
+                    ...context.repo,
+                    issue_number: existingIssue.number,
+                    state: 'closed'
+                })
+            }
+            return true
+        }
+
+        const markdown = this.produceMarkdown(report)
 
         try {
             if (existingIssue) {

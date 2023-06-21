@@ -902,7 +902,6 @@ class IssueWriter {
     }
     write(report) {
         return __awaiter(this, void 0, void 0, function* () {
-            const markdown = this.produceMarkdown(report);
             const token = core.getInput('token');
             const octoKit = github.getOctokit(token);
             const context = github.context;
@@ -911,6 +910,14 @@ class IssueWriter {
                 sort: 'updated'
             });
             const existingIssue = issues.data.items.find(issue => issue.title === this.issueTitle);
+            if (report.summary && !report.summary.hasWarningsOrFailures()) {
+                if (existingIssue) {
+                    yield octoKit.rest.issues.createComment(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: 'All warnings and errors have been fixed!' }));
+                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, state: 'closed' }));
+                }
+                return true;
+            }
+            const markdown = this.produceMarkdown(report);
             try {
                 if (existingIssue) {
                     yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: markdown }));
