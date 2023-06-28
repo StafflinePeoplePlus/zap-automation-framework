@@ -896,6 +896,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IssueWriter = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const MAX_BODY_LENGTH = 65536;
+const TOO_LONG_EXPLANATION = '\n\n **The report was too long so some results may be missing**';
 class IssueWriter {
     constructor(issueTitle) {
         this.issueTitle = issueTitle;
@@ -918,12 +920,21 @@ class IssueWriter {
                 return true;
             }
             const markdown = this.produceMarkdown(report);
+            let body = '';
+            for (const section of markdown) {
+                if (body.length + section.length >=
+                    MAX_BODY_LENGTH - TOO_LONG_EXPLANATION.length) {
+                    body += TOO_LONG_EXPLANATION;
+                    break;
+                }
+                body += section;
+            }
             try {
                 if (existingIssue) {
-                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: markdown }));
+                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body }));
                 }
                 else {
-                    yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body: markdown }));
+                    yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body }));
                 }
             }
             catch (error) {
@@ -935,32 +946,32 @@ class IssueWriter {
         });
     }
     produceMarkdown(report) {
-        let markdown = '# ZAP Scan Results\n\n';
+        const markdown = ['# ZAP Scan Results\n\n'];
         if (report.summary !== undefined) {
-            markdown += `
+            markdown.push(`
 ### Summary
 
 - Passed: **${report.summary.pass}**
 - Warnings: **${report.summary.warn}**
 - Failed: **${report.summary.fail}**
 
-`;
+`);
         }
         if (report.sites !== undefined && report.sites.length > 0) {
             for (const site of report.sites) {
-                markdown += this.getSiteAlerts(site);
+                markdown.push(...this.getSiteAlerts(site));
             }
         }
         return markdown;
     }
     getSiteAlerts(site) {
-        let markdown = `## Report for ${site.name}`;
+        const markdown = [`## Report for ${site.name}`];
         if (site.alerts !== undefined && site.alerts.length > 0) {
             for (const alert of site.alerts) {
                 if (alert.getRiskDescription().includes('False Positive')) {
                     continue;
                 }
-                markdown += this.getAlertText(alert);
+                markdown.push(this.getAlertText(alert));
             }
         }
         return markdown;

@@ -6,6 +6,10 @@ import {SiteInterface} from '../reports/SiteInterface'
 import * as github from '@actions/github'
 import {AlertInstanceInterface} from '../reports/AlertInstanceInterface'
 
+const MAX_BODY_LENGTH = 65536
+const TOO_LONG_EXPLANATION =
+    '\n\n **The report was too long so some results may be missing**'
+
 export class IssueWriter implements WriterInterface {
     issueTitle: string
 
@@ -44,19 +48,30 @@ export class IssueWriter implements WriterInterface {
         }
 
         const markdown = this.produceMarkdown(report)
+        let body = ''
+        for (const section of markdown) {
+            if (
+                body.length + section.length >=
+                MAX_BODY_LENGTH - TOO_LONG_EXPLANATION.length
+            ) {
+                body += TOO_LONG_EXPLANATION
+                break
+            }
+            body += section
+        }
 
         try {
             if (existingIssue) {
                 await octoKit.rest.issues.update({
                     ...context.repo,
                     issue_number: existingIssue.number,
-                    body: markdown
+                    body
                 })
             } else {
                 await octoKit.rest.issues.create({
                     ...context.repo,
                     title: this.issueTitle,
-                    body: markdown
+                    body
                 })
             }
         } catch (error) {
@@ -68,38 +83,38 @@ export class IssueWriter implements WriterInterface {
         return true
     }
 
-    produceMarkdown(report: ReportInterface): string {
-        let markdown = '# ZAP Scan Results\n\n'
+    produceMarkdown(report: ReportInterface): string[] {
+        const markdown = ['# ZAP Scan Results\n\n']
 
         if (report.summary !== undefined) {
-            markdown += `
+            markdown.push(`
 ### Summary
 
 - Passed: **${report.summary.pass}**
 - Warnings: **${report.summary.warn}**
 - Failed: **${report.summary.fail}**
 
-`
+`)
         }
 
         if (report.sites !== undefined && report.sites.length > 0) {
             for (const site of report.sites) {
-                markdown += this.getSiteAlerts(site)
+                markdown.push(...this.getSiteAlerts(site))
             }
         }
 
         return markdown
     }
 
-    private getSiteAlerts(site: SiteInterface): string {
-        let markdown = `## Report for ${site.name}`
+    private getSiteAlerts(site: SiteInterface): string[] {
+        const markdown = [`## Report for ${site.name}`]
 
         if (site.alerts !== undefined && site.alerts.length > 0) {
             for (const alert of site.alerts) {
                 if (alert.getRiskDescription().includes('False Positive')) {
                     continue
                 }
-                markdown += this.getAlertText(alert)
+                markdown.push(this.getAlertText(alert))
             }
         }
 
