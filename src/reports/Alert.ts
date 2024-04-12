@@ -4,32 +4,61 @@ import {Confidence} from './Confidence'
 import {AlertInterface} from './AlertInterface'
 import {ConfidenceInterface} from './ConfidenceInterface'
 import {RiskCodeInterface} from './RiskCodeInterface'
+import {AlertInstanceInterface} from './AlertInstanceInterface'
+import {AlertInstance} from './AlertInstance'
 
 export class Alert implements AlertInterface {
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(alertData: any) {
-
-        this.pluginId = alertData.hasOwnProperty('pluginid') ? alertData['pluginid'] : ''
-        this.alertRef = alertData.hasOwnProperty('alertref') ? alertData['alertref'] : ''
+        this.pluginId = alertData.hasOwnProperty('pluginid')
+            ? alertData['pluginid']
+            : ''
+        this.alertRef = alertData.hasOwnProperty('alertRef')
+            ? alertData['alertRef']
+            : ''
         this.alert = alertData.hasOwnProperty('alert') ? alertData['alert'] : ''
         this.name = alertData.hasOwnProperty('name') ? alertData['name'] : ''
 
-        const riskCode = alertData.hasOwnProperty('riskcode') ? parseInt(alertData['riskcode']) : 0
+        const riskCode = alertData.hasOwnProperty('riskcode')
+            ? parseInt(alertData['riskcode'])
+            : 0
         this.riskCode = new RiskCode(riskCode)
 
-        const confidence = alertData.hasOwnProperty('confidence') ? parseInt(alertData['confidence']) : 0
+        const confidence = alertData.hasOwnProperty('confidence')
+            ? parseInt(alertData['confidence'])
+            : 0
         this.confidence = new Confidence(confidence)
 
-        this.riskDesc = alertData.hasOwnProperty('riskdesc') ? alertData['riskdesc'] : ''
-        this.description = alertData.hasOwnProperty('desc') ? alertData['desk'] : ''
-        this.count = alertData.hasOwnProperty('count') ? parseInt(alertData['count']) : 0
-        this.solution = alertData.hasOwnProperty('solution') ? alertData['solution'] : ''
-        this.otherInfo = alertData.hasOwnProperty('otherinfo') ? alertData['otherinfo'] : ''
-        this.reference = alertData.hasOwnProperty('reference') ? alertData['reference'] : ''
+        this.riskDesc = alertData.hasOwnProperty('riskdesc')
+            ? alertData['riskdesc']
+            : ''
+        this.description = alertData.hasOwnProperty('desc')
+            ? alertData['desc']
+            : ''
+        this.count = alertData.hasOwnProperty('count')
+            ? parseInt(alertData['count'])
+            : 0
+        this.solution = alertData.hasOwnProperty('solution')
+            ? alertData['solution']
+            : ''
+        this.otherInfo = alertData.hasOwnProperty('otherinfo')
+            ? alertData['otherinfo']
+            : ''
+        this.reference = alertData.hasOwnProperty('reference')
+            ? alertData['reference']
+            : ''
         this.cweId = alertData.hasOwnProperty('cweid') ? alertData['cweid'] : ''
-        this.wascId = alertData.hasOwnProperty('wascid') ? alertData['wascid'] : ''
-        this.sourceId = alertData.hasOwnProperty('sourceid') ? alertData['sourceid'] : ''
+        this.wascId = alertData.hasOwnProperty('wascid')
+            ? alertData['wascid']
+            : ''
+        this.sourceId = alertData.hasOwnProperty('sourceid')
+            ? alertData['sourceid']
+            : ''
+        this.instances =
+            alertData.hasOwnProperty('instances') &&
+            Array.isArray(alertData['instances'])
+                ? alertData['instances'].map(data => new AlertInstance(data))
+                : []
     }
 
     alert: string
@@ -47,6 +76,7 @@ export class Alert implements AlertInterface {
     solution: string
     sourceId: string
     wascId: string
+    instances: AlertInstanceInterface[]
 
     getAlert(): string {
         return this.alert
@@ -106,5 +136,9 @@ export class Alert implements AlertInterface {
 
     getWASCID(): string {
         return this.wascId
+    }
+
+    getInstances(): AlertInstanceInterface[] {
+        return this.instances
     }
 }

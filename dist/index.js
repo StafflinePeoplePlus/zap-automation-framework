@@ -241,6 +241,8 @@ function run() {
             const jsonFile = core.getInput('json-file');
             const issueTitle = core.getInput('issue-title');
             const createAnnotations = core.getBooleanInput('create-annotations');
+            const failActionOnFailure = core.getBooleanInput('fail-action-on-failure');
+            const failActionOnWarning = core.getBooleanInput('fail-action-on-warning');
             const reportsDir = '/home/runner/.zap/reports';
             try {
                 yield io.mkdirP(reportsDir);
@@ -279,13 +281,23 @@ function run() {
                 artifactName = uploaded.artifactName;
                 core.info(`Build artifact was created: ${artifactName}`);
             }
+            const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
+            if (reportObj.summary) {
+                if (failActionOnFailure && reportObj.summary.hasFailures()) {
+                    core.setFailed(`${reportObj.summary.getFailures()} failures`);
+                }
+                else if (failActionOnWarning &&
+                    reportObj.summary.hasWarningsOrFailures()) {
+                    core.setFailed(`${reportObj.summary.getFailures()} failures and ${reportObj.summary.getWarnings()} warnings`);
+                }
+            }
             if (!createIssue && !createAnnotations) {
                 core.endGroup();
                 return;
             }
-            const reportObj = new Report_1.Report(`${reportsDir}/${summaryFile}`, `${reportsDir}/${jsonFile}`);
             let reportWritersResult = false;
             if (createAnnotations) {
+                core.info("Let's write some annotations!");
                 const annotationWriter = new AnnotationWriter_1.AnnotationWriter();
                 reportWritersResult || (reportWritersResult = yield annotationWriter.write(reportObj));
             }
@@ -320,26 +332,56 @@ exports.Alert = void 0;
 /* eslint-disable no-prototype-builtins */
 const RiskCode_1 = __nccwpck_require__(8488);
 const Confidence_1 = __nccwpck_require__(5912);
+const AlertInstance_1 = __nccwpck_require__(3446);
 class Alert {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(alertData) {
-        this.pluginId = alertData.hasOwnProperty('pluginid') ? alertData['pluginid'] : '';
-        this.alertRef = alertData.hasOwnProperty('alertref') ? alertData['alertref'] : '';
+        this.pluginId = alertData.hasOwnProperty('pluginid')
+            ? alertData['pluginid']
+            : '';
+        this.alertRef = alertData.hasOwnProperty('alertRef')
+            ? alertData['alertRef']
+            : '';
         this.alert = alertData.hasOwnProperty('alert') ? alertData['alert'] : '';
         this.name = alertData.hasOwnProperty('name') ? alertData['name'] : '';
-        const riskCode = alertData.hasOwnProperty('riskcode') ? parseInt(alertData['riskcode']) : 0;
+        const riskCode = alertData.hasOwnProperty('riskcode')
+            ? parseInt(alertData['riskcode'])
+            : 0;
         this.riskCode = new RiskCode_1.RiskCode(riskCode);
-        const confidence = alertData.hasOwnProperty('confidence') ? parseInt(alertData['confidence']) : 0;
+        const confidence = alertData.hasOwnProperty('confidence')
+            ? parseInt(alertData['confidence'])
+            : 0;
         this.confidence = new Confidence_1.Confidence(confidence);
-        this.riskDesc = alertData.hasOwnProperty('riskdesc') ? alertData['riskdesc'] : '';
-        this.description = alertData.hasOwnProperty('desc') ? alertData['desk'] : '';
-        this.count = alertData.hasOwnProperty('count') ? parseInt(alertData['count']) : 0;
-        this.solution = alertData.hasOwnProperty('solution') ? alertData['solution'] : '';
-        this.otherInfo = alertData.hasOwnProperty('otherinfo') ? alertData['otherinfo'] : '';
-        this.reference = alertData.hasOwnProperty('reference') ? alertData['reference'] : '';
+        this.riskDesc = alertData.hasOwnProperty('riskdesc')
+            ? alertData['riskdesc']
+            : '';
+        this.description = alertData.hasOwnProperty('desc')
+            ? alertData['desc']
+            : '';
+        this.count = alertData.hasOwnProperty('count')
+            ? parseInt(alertData['count'])
+            : 0;
+        this.solution = alertData.hasOwnProperty('solution')
+            ? alertData['solution']
+            : '';
+        this.otherInfo = alertData.hasOwnProperty('otherinfo')
+            ? alertData['otherinfo']
+            : '';
+        this.reference = alertData.hasOwnProperty('reference')
+            ? alertData['reference']
+            : '';
         this.cweId = alertData.hasOwnProperty('cweid') ? alertData['cweid'] : '';
-        this.wascId = alertData.hasOwnProperty('wascid') ? alertData['wascid'] : '';
-        this.sourceId = alertData.hasOwnProperty('sourceid') ? alertData['sourceid'] : '';
+        this.wascId = alertData.hasOwnProperty('wascid')
+            ? alertData['wascid']
+            : '';
+        this.sourceId = alertData.hasOwnProperty('sourceid')
+            ? alertData['sourceid']
+            : '';
+        this.instances =
+            alertData.hasOwnProperty('instances') &&
+                Array.isArray(alertData['instances'])
+                ? alertData['instances'].map(data => new AlertInstance_1.AlertInstance(data))
+                : [];
     }
     getAlert() {
         return this.alert;
@@ -386,8 +428,56 @@ class Alert {
     getWASCID() {
         return this.wascId;
     }
+    getInstances() {
+        return this.instances;
+    }
 }
 exports.Alert = Alert;
+
+
+/***/ }),
+
+/***/ 3446:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AlertInstance = void 0;
+class AlertInstance {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(instanceData) {
+        this.uri = instanceData.hasOwnProperty('uri') ? instanceData['uri'] : '';
+        this.method = instanceData.hasOwnProperty('method')
+            ? instanceData['method']
+            : '';
+        this.param = instanceData.hasOwnProperty('param')
+            ? instanceData['param']
+            : '';
+        this.evidence = instanceData.hasOwnProperty('evidence')
+            ? instanceData['evidence']
+            : '';
+        this.otherInfo = instanceData.hasOwnProperty('otherinfo')
+            ? instanceData['otherinfo']
+            : '';
+    }
+    getURI() {
+        return this.uri;
+    }
+    getMethod() {
+        return this.method;
+    }
+    getParam() {
+        return this.param;
+    }
+    getEvidence() {
+        return this.evidence;
+    }
+    getOtherInfo() {
+        return this.otherInfo;
+    }
+}
+exports.AlertInstance = AlertInstance;
 
 
 /***/ }),
@@ -473,22 +563,22 @@ const Site_1 = __nccwpck_require__(9383);
 const Summary_1 = __nccwpck_require__(3852);
 class Report {
     constructor(summaryFile, jsonFile) {
+        var _a;
         this.summaryFile = summaryFile;
         this.jsonFile = jsonFile;
-        fs.readFile(summaryFile, 'utf-8', (err, data) => {
-            if (err) {
-                core.warning('Unable to read summary report file');
-                throw new Error('Unable to read summary report file');
-            }
+        try {
+            const data = fs.readFileSync(summaryFile, 'utf-8');
+            console.log(data);
             const summaryData = JSON.parse(data);
             this.summary = new Summary_1.Summary(summaryData);
-        });
-        fs.readFile(jsonFile, 'utf-8', (err, data) => {
-            var _a;
-            if (err) {
-                core.warning('Unable to read traditional json report file');
-                return;
-            }
+        }
+        catch (_b) {
+            core.warning('Unable to read summary report file');
+            throw new Error('Unable to read summary report file');
+        }
+        try {
+            const data = fs.readFileSync(jsonFile, 'utf-8');
+            console.log(data);
             const detailedData = JSON.parse(data);
             // eslint-disable-next-line no-prototype-builtins
             if (detailedData.hasOwnProperty('site')) {
@@ -499,7 +589,10 @@ class Report {
                     (_a = this.sites) === null || _a === void 0 ? void 0 : _a.push(siteObj);
                 }
             }
-        });
+        }
+        catch (_c) {
+            core.warning('Unable to read traditional json report file');
+        }
     }
     /**
      * @inheritDoc
@@ -803,28 +896,45 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IssueWriter = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const MAX_BODY_LENGTH = 65536;
+const TOO_LONG_EXPLANATION = '\n\n **The report was too long so some results may be missing**';
 class IssueWriter {
     constructor(issueTitle) {
         this.issueTitle = issueTitle;
     }
     write(report) {
         return __awaiter(this, void 0, void 0, function* () {
-            const markdown = this.produceMarkdown(report);
             const token = core.getInput('token');
             const octoKit = github.getOctokit(token);
             const context = github.context;
             const issues = yield octoKit.rest.search.issuesAndPullRequests({
-                q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`)
-                    .replace(/%20/g, '+'),
+                q: encodeURI(`is:issue state:open repo:${context.repo.owner}/${context.repo.repo} ${this.issueTitle}`).replace(/%20/g, '+'),
                 sort: 'updated'
             });
             const existingIssue = issues.data.items.find(issue => issue.title === this.issueTitle);
+            if (report.summary && !report.summary.hasWarningsOrFailures()) {
+                if (existingIssue) {
+                    yield octoKit.rest.issues.createComment(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: 'All warnings and errors have been fixed!' }));
+                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, state: 'closed' }));
+                }
+                return true;
+            }
+            const markdown = this.produceMarkdown(report);
+            let body = '';
+            for (const section of markdown) {
+                if (body.length + section.length >=
+                    MAX_BODY_LENGTH - TOO_LONG_EXPLANATION.length) {
+                    body += TOO_LONG_EXPLANATION;
+                    break;
+                }
+                body += section;
+            }
             try {
                 if (existingIssue) {
-                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body: markdown }));
+                    yield octoKit.rest.issues.update(Object.assign(Object.assign({}, context.repo), { issue_number: existingIssue.number, body }));
                 }
                 else {
-                    yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body: markdown }));
+                    yield octoKit.rest.issues.create(Object.assign(Object.assign({}, context.repo), { title: this.issueTitle, body }));
                 }
             }
             catch (error) {
@@ -836,29 +946,32 @@ class IssueWriter {
         });
     }
     produceMarkdown(report) {
-        let markdown = '# ZAP Scan Results\n\n';
+        const markdown = ['# ZAP Scan Results\n\n'];
         if (report.summary !== undefined) {
-            markdown += `
+            markdown.push(`
 ### Summary
 
 - Passed: **${report.summary.pass}**
 - Warnings: **${report.summary.warn}**
 - Failed: **${report.summary.fail}**
 
-`;
+`);
         }
         if (report.sites !== undefined && report.sites.length > 0) {
             for (const site of report.sites) {
-                markdown += this.getSiteAlerts(site);
+                markdown.push(...this.getSiteAlerts(site));
             }
         }
         return markdown;
     }
     getSiteAlerts(site) {
-        let markdown = `## Report for ${site.name}`;
+        const markdown = [`## Report for ${site.name}`];
         if (site.alerts !== undefined && site.alerts.length > 0) {
             for (const alert of site.alerts) {
-                markdown += this.getAlertText(alert);
+                if (alert.getRiskDescription().includes('False Positive')) {
+                    continue;
+                }
+                markdown.push(this.getAlertText(alert));
             }
         }
         return markdown;
@@ -868,22 +981,56 @@ class IssueWriter {
 ### ${alert.riskCode.getEmoji()} ${alert.getName()} (${alert.getRiskDescription()}) &mdash; ${alert.count} Occurrences
 
 <details>
-    <summary>See details</summary>
-    #### Description
-    
-    ${alert.description}
-    
-    #### Solution
-    
-    ${alert.solution}
-    
-    #### Other Info
-    
-    ${alert.otherInfo}
+<summary>See details</summary>
+
+Ref: \`${alert.alertRef}\`
+
+### Description
+
+${alert.description}
+
+---
+
+### Solution
+
+${alert.solution}
+
+---
+
+### Other Info
+
+${alert.otherInfo}
+</details>
+
+<details>
+<summary>See instances</summary>
+
+${this.getAlertInstancesText(alert.instances)}
 </details>
 
 
+
 `;
+    }
+    getAlertInstancesText(instances) {
+        return `
+${instances.map(i => this.getAlertInstanceText(i)).join('\n')}
+`;
+    }
+    getAlertInstanceText(instance) {
+        const param = instance.param && `- \`${instance.param}\``;
+        return `- **${instance.method}** ${instance.uri} ${param}
+  <details>
+    <summary>See Details</summary>
+
+   ##### Evidence
+   \`\`\`
+   ${instance.evidence.replace(/\r?\n/g, '\r  ')}
+   \`\`\`
+
+   ##### Other Info
+   ${instance.otherInfo.replace(/\r?\n/g, '\r  ')}
+  </details>`;
     }
 }
 exports.IssueWriter = IssueWriter;
