@@ -1,7 +1,8 @@
 # :zap: GitHub Action to run ZAP Automation Framework
 
 An action that runs [OWASP ZAProxy](https://www.zaproxy.org/)'s
-[Automation Framework](https://www.zaproxy.org/docs/desktop/addons/automation-framework/), to scan a web application 
+[Automation Framework](https://www.zaproxy.org/docs/desktop/addons/automation-framework/), to scan a
+web application 
 and get analysis results both as an issue and/or as an action artifact.
 
 > :bangbang: WARNING! This action is still under development and hasn't been tested thoroughly. Use it at your own risk!!!
@@ -25,7 +26,9 @@ and get analysis results both as an issue and/or as an action artifact.
  - You should also check with your hosting provider and any other services the target site relies on, prior to executing a test on your target. 
  - In case you have configured ZAP to post forms, please be prepared to find a ton of garbage data in your database(s).
  - Never, **ever**, scan your production targets, as the process might impact the actual service.
- - Never, **ever**, **EVER**, store secrets in your repository (such as passwords, access keys, etc.). Instead modify your configuration in such a way, these secrets are obtained from a secure source (e.g. Repository Secrets). 
+  Never, **ever**, **EVER**, store secrets in your repository (such as passwords, access keys,
+    etc.). Instead modify your configuration in such a way, these secrets are obtained from a secure
+    source (e.g. Repository Secrets). 
 
 ## :nerd_face: Introduction
 
@@ -52,7 +55,7 @@ In its simplest form, the action can be set up like this:
     autorun-file: 'autorun.yaml'
 ```
 
-This will pull the `owasp/zap2docker-stable` mount the `zap-config` directory to `/zap/zap-config` inside a container and
+This will pull the `ghcr.io/zaproxy/zaproxy` mount the `zap-config` directory to `/zap/zap-config` inside a container and
 then execute `/zap/zap.sh -cmd -autorun /zap/zap-config/autorun.yaml`. 
 
 > As simple as that.
@@ -227,7 +230,7 @@ Configure your action accordingly:
 #### `docker-image` (Optional)
 - The docker image which will be used to run zap.
 - Accepts a `string`.
-- By default, the action uses the `owasp/zap2docker-stable` image.
+- By default, the action uses the ``ghcr.io/zaproxy/zaproxy` image.
 
 #### `create-issue` (Optional)
 - That an issue should be created if the reports contain any alerts.

@@ -13,7 +13,7 @@ inputs:
   docker-image:
     required: false
     description: 'The docker image to be used'
-    default: 'owasp/zap2docker-stable'
+    default: 'ghcr.io/zaproxy/zaproxy:stable'
   create-issue:
     required: false
     description: 'Creates a Github issue when the Automation Framework detects issues with the webapp'
@@ -48,5 +48,5 @@ inputs:
     default: false
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'

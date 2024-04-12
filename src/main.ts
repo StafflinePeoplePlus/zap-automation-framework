@@ -113,7 +113,7 @@ async function run(): Promise<void> {
         let reportWritersResult = false
 
         if (createAnnotations) {
-            core.info("Let's write some annotations!")
+            core.info('Let\'s write some annotations!')
             const annotationWriter: WriterInterface = new AnnotationWriter()
             reportWritersResult ||= await annotationWriter.write(reportObj)
         }

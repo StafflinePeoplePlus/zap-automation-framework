@@ -124,8 +124,8 @@ export class IssueWriter implements WriterInterface {
     private getAlertText(alert: AlertInterface): string {
         return `
 ### ${alert.riskCode.getEmoji()} ${alert.getName()} (${alert.getRiskDescription()}) &mdash; ${
-            alert.count
-        } Occurrences
+    alert.count
+} Occurrences
 
 <details>
 <summary>See details</summary>
