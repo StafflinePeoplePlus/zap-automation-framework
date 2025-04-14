@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
 import * as fs from 'fs'
-import {pullDockerImage, getDockerCommand, copyFilesFromDocker} from './docker'
+import {pullDockerImage} from './docker'
 import {buildAndUploadArtifact} from './artifact'
 import {ReportInterface} from './reports/ReportInterface'
 import {Report} from './reports/Report'
@@ -25,7 +25,6 @@ function checkAutorunFile(configDir: string, autorunFile: string): void {
 
 async function run(): Promise<void> {
     try {
-        const workspace: string = process.env.GITHUB_WORKSPACE ?? ''
         const configDir: string = core.getInput('config-dir')
         const autorunFile: string = core.getInput('autorun-file')
         const dockerImage: string = core.getInput('docker-image')
@@ -84,7 +83,9 @@ async function run(): Promise<void> {
         const uploaded = await buildAndUploadArtifact(reportsDir)
         if (uploaded !== null) {
             artifactName = uploaded.artifactName
-            core.info(`Build artifact was created: ${artifactName}`)
+            core.info(
+                `Build artifact was created: ${artifactName} with id: ${uploaded.artifact.id}`
+            )
         }
 
         const reportObj: ReportInterface = new Report(
