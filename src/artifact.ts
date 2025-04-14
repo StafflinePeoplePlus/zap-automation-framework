@@ -26,7 +26,9 @@ export async function buildAndUploadArtifact(reportsDir: string) {
         return null
     }
     const artifact = new DefaultArtifactClient()
-    const artifactName = `zap-reports-${new Date().toISOString()}`
+    const artifactName = `zap-reports-${new Date()
+        .toISOString()
+        .replace(/[:]/g, '-')}`
     const options = {
         continueOnError: true,
         retentionDays: 30
