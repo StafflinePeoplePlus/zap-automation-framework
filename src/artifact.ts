@@ -26,9 +26,17 @@ export async function buildAndUploadArtifact(reportsDir: string) {
         return null
     }
     const artifact = new DefaultArtifactClient()
-    const artifactName = `zap-reports-${new Date()
-        .toISOString()
-        .replace(/[:]/g, '-')}`
+    const now = new Date()
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now
+        .getHours()
+        .toString()
+        .padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}-${now
+        .getSeconds()
+        .toString()
+        .padStart(2, '0')}`
+    const artifactName = `zap-reports-${formattedDate}`
     const options = {
         continueOnError: true,
         retentionDays: 30
