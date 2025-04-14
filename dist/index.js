@@ -64,7 +64,9 @@ function buildAndUploadArtifact(reportsDir) {
             return null;
         }
         const artifact = new artifact_1.DefaultArtifactClient();
-        const artifactName = `zap-reports-${new Date().toISOString()}`;
+        const artifactName = `zap-reports-${new Date()
+            .toISOString()
+            .replace(/[:]/g, '-')}`;
         const options = {
             continueOnError: true,
             retentionDays: 30
