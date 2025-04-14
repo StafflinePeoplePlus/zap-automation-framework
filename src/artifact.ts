@@ -36,7 +36,7 @@ export async function buildAndUploadArtifact(reportsDir: string) {
         .getSeconds()
         .toString()
         .padStart(2, '0')}`
-    const artifactName = `zap-reports-${formattedDate}`
+    const artifactName = `zap-${formattedDate}`
     const options = {
         continueOnError: true,
         retentionDays: 30
@@ -45,7 +45,11 @@ export async function buildAndUploadArtifact(reportsDir: string) {
     return {
         artifact: await artifact.uploadArtifact(
             artifactName,
-            fileList,
+            fileList.filter(
+                name =>
+                    name.replace(rootDirectory, '') !== '' &&
+                    name.replace(rootDirectory, '') !== undefined
+            ),
             rootDirectory,
             options
         ),

@@ -74,13 +74,14 @@ function buildAndUploadArtifact(reportsDir) {
             .getSeconds()
             .toString()
             .padStart(2, '0')}`;
-        const artifactName = `zap-reports-${formattedDate}`;
+        const artifactName = `zap-${formattedDate}`;
         const options = {
             continueOnError: true,
             retentionDays: 30
         };
         return {
-            artifact: yield artifact.uploadArtifact(artifactName, fileList, rootDirectory, options),
+            artifact: yield artifact.uploadArtifact(artifactName, fileList.filter(name => name.replace(rootDirectory, '') !== '' &&
+                name.replace(rootDirectory, '') !== undefined), rootDirectory, options),
             artifactName: artifactName
         };
     });
